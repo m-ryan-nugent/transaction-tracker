@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tracker">
+    
+    <title>Transaction Tracker</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Transaction Tracker</h1>
+            <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-tab="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" data-tab="transactions">
+                <span class="nav-icon">💳</span>
+                <span class="nav-label">Transactions</span>
+            </button>
+            <button class="nav-btn" data-tab="accounts">
+                <span class="nav-icon">🏦</span>
+                <span class="nav-label">Accounts</span>
+            </button>
+            <button class="nav-btn" data-tab="subscriptions">
+                <span class="nav-icon">🔄</span>
+                <span class="nav-label">Subscriptions</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="summary-cards">
+                    <div class="card income-card">
+                        <span class="card-label">Income</span>
+                        <span class="card-value" id="totalIncome">$0.00</span>
+                    </div>
+                    <div class="card expense-card">
+                        <span class="card-label">Expenses</span>
+                        <span class="card-value" id="totalExpenses">$0.00</span>
+                    </div>
+                    <div class="card net-card">
+                        <span class="card-label">Net</span>
+                        <span class="card-value" id="totalNet">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Credit Cards</h2>
+                    <div id="creditCardList" class="card-list">
+                        <!-- Credit cards will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Recent Transactions</h2>
+                    <div id="recentTransactions" class="transaction-list">
+                        <!-- Recent transactions will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Tab -->
+            <section id="transactions" class="tab-content">
+                <div class="section-header">
+                    <h2>Transactions</h2>
+                    <button class="btn-primary" id="addTransactionBtn">+ Add</button>
+                </div>
+                
+                <div class="filters">
+                    <select id="transAccountFilter">
+                        <option value="">All Accounts</option>
+                    </select>
+                    <select id="transTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                
+                <div id="transactionList" class="transaction-list">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Accounts Tab -->
+            <section id="accounts" class="tab-content">
+                <div class="section-header">
+                    <h2>Accounts</h2>
+                    <button class="btn-primary" id="addAccountBtn">+ Add</button>
+                </div>
+                
+                <div id="accountList" class="account-list">
+                    <!-- Accounts will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Subscriptions Tab -->
+            <section id="subscriptions" class="tab-content">
+                <div class="section-header">
+                    <h2>Subscriptions</h2>
+                    <button class="btn-primary" id="addSubscriptionBtn">+ Add</button>
+                </div>
+                
+                <div id="subscriptionList" class="subscription-list">
+                    <!-- Subscriptions will be loaded here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        <!-- Add Transaction Modal -->
+        <div id="transactionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Transaction</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="transAmount">Amount</label>
+                        <input type="number" id="transAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDescription">Description</label>
+                        <input type="text" id="transDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDate">Date</label>
+                        <input type="date" id="transDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transAccount">Account</label>
+                        <select id="transAccount" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transCategory">Category</label>
+                        <select id="transCategory"></select>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="transIsIncome">
+                        <label for="transIsIncome">This is income</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="transNotes">Notes</label>
+                        <textarea id="transNotes"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Save Transaction</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Account Modal -->
+        <div id="accountModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Account</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <form id="accountForm">
+                    <div class="form-group">
+                        <label for="accountName">Account Name</label>
+                        <input type="text" id="accountName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="accountType">Account Type</label>
+                        <select id="accountType" required>
+                            <option value="checking">Checking</option>
+                            <option value="savings">Savings</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="creditLimitGroup">
+                        <label for="accountLimit">Credit Limit</label>
+                        <input type="number" id="accountLimit" step="0.01">
+                    </div>
+                    <div class="form-group" id="balanceGroup">
+                        <label for="accountBalance" id="balanceLabel">Initial Balance</label>
+                        <input type="number" id="accountBalance" step="0.01" value="0">
+                        <small id="balanceHint"></small>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Save Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Subscription Modal -->
+        <div id="subscriptionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Subscription</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <form id="subscriptionForm">
+                    <div class="form-group">
+                        <label for="subName">Name</label>
+                        <input type="text" id="subName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subAmount">Amount</label>
+                        <input type="number" id="subAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subCycle">Billing Cycle</label>
+                        <select id="subCycle" required>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subNextDate">Next Billing Date</label>
+                        <input type="date" id="subNextDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subAccount">Account (optional)</label>
+                        <select id="subAccount">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subNotes">Notes</label>
+                        <textarea id="subNotes"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Save Subscription</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label for="apiUrl">API Server URL</label>
+                        <input type="text" id="apiUrl" inputmode="url" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="http://192.168.1.x:8000">
+                        <small>Enter your computer's local IP address if accessing from iPhone</small>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Save Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
