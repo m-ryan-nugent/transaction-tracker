@@ -6,6 +6,9 @@
 <div class="app-layout">
     <header class="header">
         <div class="container header-content">
+            <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu">
+                <i data-feather="menu"></i>
+            </button>
             <a href="/dashboard" class="header-brand">
                 <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
                 <span>Transaction Tracker</span>
@@ -98,6 +101,31 @@
             </div>
         </div>
     </main>
+</div>
+
+<div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <div class="mobile-nav-drawer">
+        <div class="mobile-nav-header">
+            <div class="mobile-nav-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </div>
+            <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <nav class="mobile-nav-links">
+            <a href="/dashboard" class="mobile-nav-link"><i data-feather="home"></i> Dashboard</a>
+            <a href="/accounts" class="mobile-nav-link"><i data-feather="credit-card"></i> Accounts</a>
+            <a href="/transactions" class="mobile-nav-link active"><i data-feather="list"></i> Transactions</a>
+            <a href="/subscriptions" class="mobile-nav-link"><i data-feather="refresh-cw"></i> Subscriptions</a>
+            <a href="/loans" class="mobile-nav-link"><i data-feather="file-text"></i> Loans</a>
+            <a href="/reports" class="mobile-nav-link"><i data-feather="bar-chart-2"></i> Reports</a>
+        </nav>
+        <div class="mobile-nav-footer">
+            <button id="mobile-logout-btn" class="btn btn-ghost btn-block" onclick="document.getElementById('logout-btn').click()">Logout</button>
+        </div>
+    </div>
 </div>
 
 <div id="transaction-modal" class="modal-overlay">
@@ -303,6 +331,14 @@
     }
     
     @media (max-width: 768px) {
+        .filters-row {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .filters-row .form-group:nth-child(5) {
+            grid-column: 1 / -1;
+        }
+
         .transaction-row {
             grid-template-columns: 1fr auto;
             grid-template-rows: auto auto;
