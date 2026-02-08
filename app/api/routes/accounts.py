@@ -6,9 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db, get_current_user
 from app.api.schemas.account import (
-    BankAccountCreate,
-    CreditCardCreate,
-    LoanCreate,
     InvestmentCreate,
     AccountUpdate,
     AccountResponse,
@@ -20,7 +17,9 @@ from app.api.services import account_service
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
-@router.post("/bank", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/bank", response_model=AccountResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_investment(
     account: InvestmentCreate,
     db=Depends(get_db),
@@ -64,7 +63,7 @@ async def get_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Account not found",
         )
-    
+
     return account
 
 
@@ -83,7 +82,7 @@ async def update_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Account not found",
         )
-    
+
     return await account_service.update_account(db, account_id, account)
 
 
@@ -101,4 +100,3 @@ async def delete_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Account not found",
         )
-    

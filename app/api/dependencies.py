@@ -38,25 +38,25 @@ async def get_current_user(
         detail="Not authenticated",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     if not token:
         cookie_token = request.cookies.get("access_token")
         if cookie_token and cookie_token.startswith("Bearer "):
             token = cookie_token[7:]  # Remove "Bearer " prefix
-    
+
     if not token:
         raise credentials_exception
-    
+
     token_data = decode_access_token(token)
-    
+
     if token_data is None or token_data.username is None:
         raise credentials_exception
-    
+
     user = await get_user_by_username(db, token_data.username)
-    
+
     if user is None:
         raise credentials_exception
-    
+
     return user
 
 

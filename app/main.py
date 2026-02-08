@@ -12,8 +12,16 @@ from app.config import APP_NAME, APP_VERSION
 from app.database import get_db as db_connect
 from app.database import init_db, seed_categories
 from app.api.services.auth_service import user_exists
-from app.api.dependencies import get_db, get_optional_user
-from app.api.routes import auth, accounts, categories, transactions, subscriptions, loans, reports
+from app.api.dependencies import get_optional_user
+from app.api.routes import (
+    auth,
+    accounts,
+    categories,
+    transactions,
+    subscriptions,
+    loans,
+    reports,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
@@ -55,9 +63,9 @@ async def home(request: Request):
     try:
         if not await user_exists(db):
             return RedirectResponse(url="/setup", status_code=302)
-        
+
         user = await get_optional_user(request, None, db)
-        
+
         if user:
             return RedirectResponse(url="/dashboard", status_code=302)
         else:

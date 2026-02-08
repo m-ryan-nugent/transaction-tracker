@@ -1,4 +1,4 @@
-""""Transaction routes"""
+""" "Transaction routes"""
 
 from datetime import date
 from typing import Optional
@@ -19,7 +19,9 @@ from app.api.services import account_service
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
-@router.post("", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_transaction(
     transaction: TransactionCreate,
     db=Depends(get_db),
@@ -29,24 +31,25 @@ async def create_transaction(
     account = await account_service.get_account(db, transaction.account_id)
     if not account:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Account not found"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Account not found"
         )
-    
+
     if transaction.transfer_to_account_id:
-        dest_account = await account_service.get_account(db, transaction.transfer_to_account_id)
+        dest_account = await account_service.get_account(
+            db, transaction.transfer_to_account_id
+        )
         if not dest_account:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Transfer destination account not found"
+                detail="Transfer destination account not found",
             )
-        
+
         if transaction.transfer_to_account_id == transaction.account_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot transfer to the same account"
+                detail="Cannot transfer to the same account",
             )
-    
+
     return await transaction_service.create_transaction(db, transaction)
 
 
@@ -108,13 +111,12 @@ async def get_transaction(
 ):
     """Get a specific transaction by ID."""
     transaction = await transaction_service.get_transaction(db, transaction_id)
-    
+
     if not transaction:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Transaction not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found"
         )
-    
+
     return transaction
 
 
@@ -127,13 +129,12 @@ async def update_transaction(
 ):
     """Update a transaction."""
     existing = await transaction_service.get_transaction(db, transaction_id)
-    
+
     if not existing:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Transaction not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found"
         )
-    
+
     return await transaction_service.update_transaction(db, transaction_id, transaction)
 
 
@@ -145,9 +146,8 @@ async def delete_transaction(
 ):
     """Delete a transaction (also reverses its effect on account balance)."""
     deleted = await transaction_service.delete_transaction(db, transaction_id)
-    
+
     if not deleted:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Transaction not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found"
         )

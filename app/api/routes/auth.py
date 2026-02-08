@@ -1,6 +1,6 @@
 """Authentication routes."""
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.dependencies import get_db, get_current_user
@@ -18,7 +18,7 @@ async def setup_user(user: UserCreate, db=Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User already exists. Use /auth/login instead.",
         )
-    
+
     return await auth_service.create_user(db, user)
 
 
@@ -39,7 +39,7 @@ async def login(
             detail="Invalid username or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token = auth_service.create_access_token(data={"sub": user["username"]})
 
     # Set token as HTTP-only cookie for web clients
@@ -75,7 +75,7 @@ async def get_current_user_info(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    
+
     return UserResponse(
         id=user["id"],
         username=user["username"],
@@ -90,5 +90,5 @@ async def auth_status(db=Depends(get_db)):
 
     return {
         "setup_required": not user_exists,
-        "message": "Please create a user account" if not user_exists else "Ready"
+        "message": "Please create a user account" if not user_exists else "Ready",
     }
