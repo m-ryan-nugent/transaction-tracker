@@ -1,7 +1,7 @@
 """Report routes"""
 
 from typing import Optional
-from datetime import date, timedelta
+from datetime import date
 
 import aiosqlite
 from fastapi import APIRouter, Depends, Query, Response

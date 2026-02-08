@@ -194,8 +194,8 @@ async def get_all_loans(
     
     loans = [_row_to_loan_response(dict(row)) for row in rows]
     
-    total_balance = sum(l.current_balance for l in loans if l.is_active)
-    total_original = sum(l.original_principal for l in loans if l.is_active)
+    total_balance = sum(loan.current_balance for loan in loans if loan.is_active)
+    total_original = sum(loan.original_principal for loan in loans if loan.is_active)
     
     return LoanListResponse(
         loans=loans,

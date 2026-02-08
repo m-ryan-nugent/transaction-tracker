@@ -1,14 +1,12 @@
 """Shared test fixtures and configuration."""
 
 import asyncio
-from datetime import date
 
 import aiosqlite
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from app.database import init_db, seed_categories
 from app.api.services.auth_service import hash_password
 
 

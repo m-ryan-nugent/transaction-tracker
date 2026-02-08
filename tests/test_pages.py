@@ -41,7 +41,12 @@ class TestPageRoutes:
         resp = await unauth_client.get("/reports")
         assert resp.status_code == 200
 
-    async def test_home_redirects_to_login(self, unauth_client):
+    async def test_home_redirects_to_login(self, unauth_client, db_with_user, monkeypatch):
+        async def fake_get_db():
+            return db_with_user
+
+        monkeypatch.setattr("app.main.db_connect", fake_get_db)
+
         resp = await unauth_client.get("/", follow_redirects=False)
         assert resp.status_code == 302
         assert "/login" in resp.headers.get("location", "") or "/setup" in resp.headers.get("location", "")

@@ -127,18 +127,3 @@ async def update_loan(
         raise HTTPException(status_code=404, detail="Loan not found")
     
     return loan
-
-
-@router.patch("/{loan_id}", response_model=LoanResponse)
-async def update_loan(
-    loan_id: int,
-    update: LoanUpdate,
-    db: aiosqlite.Connection = Depends(get_db),
-):
-    """Update a loan."""
-    loan = await loan_service.update_loan(db, loan_id, update)
-    
-    if not loan:
-        raise HTTPException(status_code=404, detail="Loan not found")
-    
-    return loan

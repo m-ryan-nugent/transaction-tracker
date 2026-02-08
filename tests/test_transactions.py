@@ -1,6 +1,5 @@
 """Tests for transaction routes."""
 
-from datetime import date
 
 import pytest
 

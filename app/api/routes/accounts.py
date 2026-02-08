@@ -6,9 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db, get_current_user
 from app.api.schemas.account import (
-    BankAccountCreate,
-    CreditCardCreate,
-    LoanCreate,
     InvestmentCreate,
     AccountUpdate,
     AccountResponse,
