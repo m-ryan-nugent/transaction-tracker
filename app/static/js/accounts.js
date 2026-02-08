@@ -1,8 +1,6 @@
 /**
  * Accounts Page JavaScript
- * 
- * Handles account CRUD operations and UI interactions.
- */
+ **/
 
 let accounts = [];
 let editingAccountId = null;
@@ -19,7 +17,6 @@ const typeFields = {
     investment: document.getElementById('investment-fields'),
 };
 
-
 document.addEventListener('DOMContentLoaded', () => {
     loadAccounts();
     setupEventListeners();
@@ -30,7 +27,7 @@ function setupEventListeners() {
     
     document.getElementById('modal-close').addEventListener('click', closeModal);
     document.getElementById('modal-cancel').addEventListener('click', closeModal);
-
+    
     accountTypeSelect.addEventListener('change', handleTypeChange);
     
     accountForm.addEventListener('submit', handleFormSubmit);
@@ -72,7 +69,6 @@ async function loadAccounts() {
         showToast('Failed to load accounts', 'danger');
     }
 }
-
 
 function renderAccounts() {
     const grouped = {
