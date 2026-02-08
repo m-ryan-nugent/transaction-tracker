@@ -1,4 +1,4 @@
-""""Subscription routes"""
+""" "Subscription routes"""
 
 from typing import Optional
 
@@ -59,10 +59,10 @@ async def get_subscription(
 ):
     """Get a single subscription by ID."""
     subscription = await subscription_service.get_subscription(db, subscription_id)
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
+
     return subscription
 
 
@@ -76,10 +76,10 @@ async def update_subscription(
     subscription = await subscription_service.update_subscription(
         db, subscription_id, update
     )
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
+
     return subscription
 
 
@@ -90,7 +90,7 @@ async def delete_subscription(
 ):
     """Delete a subscription."""
     deleted = await subscription_service.delete_subscription(db, subscription_id)
-    
+
     if not deleted:
         raise HTTPException(status_code=404, detail="Subscription not found")
 
@@ -104,8 +104,8 @@ async def advance_billing_date(
     Advance a subscription's billing date to the next cycle.
     """
     subscription = await subscription_service.advance_billing_date(db, subscription_id)
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
+
     return subscription

@@ -1,6 +1,5 @@
 """Tests for transaction routes."""
 
-
 import pytest
 
 
@@ -11,7 +10,11 @@ class TestCreateTransaction:
     async def _create_account(self, client, name="Test Account", balance=1000.0):
         resp = await client.post(
             "/api/accounts/bank",
-            json={"name": name, "account_type": "investment", "current_balance": balance},
+            json={
+                "name": name,
+                "account_type": "investment",
+                "current_balance": balance,
+            },
         )
         return resp.json()["id"]
 
@@ -79,7 +82,11 @@ class TestListTransactions:
     async def _seed(self, client):
         resp = await client.post(
             "/api/accounts/bank",
-            json={"name": "Main", "account_type": "investment", "current_balance": 5000},
+            json={
+                "name": "Main",
+                "account_type": "investment",
+                "current_balance": 5000,
+            },
         )
         account_id = resp.json()["id"]
         for i in range(3):

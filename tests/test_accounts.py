@@ -51,11 +51,19 @@ class TestListAccounts:
     async def test_list_accounts_after_create(self, client):
         await client.post(
             "/api/accounts/bank",
-            json={"name": "Account A", "account_type": "investment", "current_balance": 100},
+            json={
+                "name": "Account A",
+                "account_type": "investment",
+                "current_balance": 100,
+            },
         )
         await client.post(
             "/api/accounts/bank",
-            json={"name": "Account B", "account_type": "investment", "current_balance": 200},
+            json={
+                "name": "Account B",
+                "account_type": "investment",
+                "current_balance": 200,
+            },
         )
         resp = await client.get("/api/accounts")
         data = resp.json()
@@ -78,7 +86,11 @@ class TestGetAccount:
     async def test_get_account(self, client):
         create_resp = await client.post(
             "/api/accounts/bank",
-            json={"name": "Savings", "account_type": "investment", "current_balance": 3000},
+            json={
+                "name": "Savings",
+                "account_type": "investment",
+                "current_balance": 3000,
+            },
         )
         account_id = create_resp.json()["id"]
 
@@ -98,7 +110,11 @@ class TestUpdateAccount:
     async def test_update_account_name(self, client):
         create_resp = await client.post(
             "/api/accounts/bank",
-            json={"name": "Old Name", "account_type": "investment", "current_balance": 0},
+            json={
+                "name": "Old Name",
+                "account_type": "investment",
+                "current_balance": 0,
+            },
         )
         account_id = create_resp.json()["id"]
 
@@ -153,7 +169,11 @@ class TestAccountSummary:
     async def test_summary_with_accounts(self, client):
         await client.post(
             "/api/accounts/bank",
-            json={"name": "Investment", "account_type": "investment", "current_balance": 5000},
+            json={
+                "name": "Investment",
+                "account_type": "investment",
+                "current_balance": 5000,
+            },
         )
         resp = await client.get("/api/accounts/summary")
         data = resp.json()

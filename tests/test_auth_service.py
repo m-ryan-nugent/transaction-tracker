@@ -72,7 +72,9 @@ class TestUserDatabase:
     """Tests for user database operations."""
 
     async def test_create_user(self, db):
-        user = await create_user(db, UserCreate(username="newuser", password="password123"))
+        user = await create_user(
+            db, UserCreate(username="newuser", password="password123")
+        )
         assert user.username == "newuser"
         assert user.id is not None
 

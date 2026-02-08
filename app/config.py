@@ -55,7 +55,6 @@ DEFAULT_CATEGORIES = [
     {"name": "Investment Returns", "type": "income"},
     {"name": "Refund", "type": "income"},
     {"name": "Other Income", "type": "income"},
-    
     {"name": "Housing", "type": "expense"},
     {"name": "Utilities", "type": "expense"},
     {"name": "Groceries", "type": "expense"},
@@ -70,7 +69,6 @@ DEFAULT_CATEGORIES = [
     {"name": "Gifts", "type": "expense"},
     {"name": "Loan Payment", "type": "expense"},
     {"name": "Other Expense", "type": "expense"},
-    
     {"name": "Transfer", "type": "transfer"},
     {"name": "Credit Card Payment", "type": "transfer"},
     {"name": "Investment Contribution", "type": "transfer"},

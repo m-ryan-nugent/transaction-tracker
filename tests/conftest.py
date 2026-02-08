@@ -39,6 +39,7 @@ async def db():
         _create_loans_table,
         _create_loan_payments_table,
     )
+
     await _create_users_table(conn)
     await _create_accounts_table(conn)
     await _create_categories_table(conn)

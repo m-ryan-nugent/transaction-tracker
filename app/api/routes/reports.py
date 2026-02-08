@@ -73,19 +73,17 @@ async def export_transactions(
     csv_content = await report_service.export_transactions_csv(
         db, start_date, end_date, account_id, category_id
     )
-    
+
     # Generate filename with date range
     if start_date and end_date:
         filename = f"transactions_{start_date}_{end_date}.csv"
     else:
         filename = f"transactions_{date.today()}.csv"
-    
+
     return Response(
         content=csv_content,
         media_type="text/csv",
-        headers={
-            "Content-Disposition": f"attachment; filename={filename}"
-        }
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
@@ -95,13 +93,13 @@ async def export_accounts(
 ):
     """Export accounts to CSV file."""
     csv_content = await report_service.export_accounts_csv(db)
-    
+
     return Response(
         content=csv_content,
         media_type="text/csv",
         headers={
             "Content-Disposition": f"attachment; filename=accounts_{date.today()}.csv"
-        }
+        },
     )
 
 
@@ -111,13 +109,13 @@ async def export_subscriptions(
 ):
     """Export subscriptions to CSV file."""
     csv_content = await report_service.export_subscriptions_csv(db)
-    
+
     return Response(
         content=csv_content,
         media_type="text/csv",
         headers={
             "Content-Disposition": f"attachment; filename=subscriptions_{date.today()}.csv"
-        }
+        },
     )
 
 
@@ -127,11 +125,11 @@ async def export_loans(
 ):
     """Export loans to CSV file."""
     csv_content = await report_service.export_loans_csv(db)
-    
+
     return Response(
         content=csv_content,
         media_type="text/csv",
         headers={
             "Content-Disposition": f"attachment; filename=loans_{date.today()}.csv"
-        }
+        },
     )

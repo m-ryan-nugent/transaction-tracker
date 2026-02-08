@@ -1,6 +1,5 @@
 """Database connection and initialization"""
 
-
 import aiosqlite
 
 from app.config import DATABASE_PATH
@@ -21,7 +20,7 @@ async def init_db():
     """
     async with aiosqlite.connect(DATABASE_PATH) as db:
         await db.execute("PRAGMA foreign_keys = ON")
-        
+
         await _create_users_table(db)
         await _create_accounts_table(db)
         await _create_categories_table(db)
@@ -29,7 +28,7 @@ async def init_db():
         await _create_subscriptions_table(db)
         await _create_loans_table(db)
         await _create_loan_payments_table(db)
-        
+
         await db.commit()
 
 
@@ -121,11 +120,11 @@ async def _create_transactions_table(db: aiosqlite.Connection):
             FOREIGN KEY (transfer_to_account_id) REFERENCES accounts(id) ON DELETE SET NULL
         )
     """)
-    
+
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date)
     """)
-    
+
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_transactions_account ON transactions(account_id)
     """)
@@ -155,7 +154,7 @@ async def _create_subscriptions_table(db: aiosqlite.Connection):
             FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
         )
     """)
-    
+
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_subscriptions_next_date ON subscriptions(next_billing_date)
     """)
@@ -208,11 +207,11 @@ async def _create_loan_payments_table(db: aiosqlite.Connection):
             FOREIGN KEY (loan_id) REFERENCES loans(id) ON DELETE CASCADE
         )
     """)
-    
+
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_loan_payments_loan ON loan_payments(loan_id)
     """)
-    
+
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_loan_payments_date ON loan_payments(payment_date)
     """)
@@ -223,12 +222,15 @@ async def seed_categories():
     Seed the database with default categories.
     """
     from app.config import DEFAULT_CATEGORIES
-    
+
     async with aiosqlite.connect(DATABASE_PATH) as db:
         for category in DEFAULT_CATEGORIES:
-            await db.execute("""
+            await db.execute(
+                """
                 INSERT OR IGNORE INTO categories (name, type, is_system)
                 VALUES (?, ?, 1)
-            """, (category["name"], category["type"]))
-        
+            """,
+                (category["name"], category["type"]),
+            )
+
         await db.commit()

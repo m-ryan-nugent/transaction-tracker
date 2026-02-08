@@ -58,10 +58,10 @@ async def get_loan(
 ):
     """Get a single loan by ID."""
     loan = await loan_service.get_loan_by_id(db, loan_id)
-   
+
     if not loan:
         raise HTTPException(status_code=404, detail="Loan not found")
-    
+
     return loan
 
 
@@ -72,10 +72,10 @@ async def get_amortization_schedule(
 ):
     """Get the full amortization schedule for a loan."""
     schedule = await loan_service.get_amortization_schedule(db, loan_id)
-    
+
     if not schedule:
         raise HTTPException(status_code=404, detail="Loan not found")
-    
+
     return schedule
 
 
@@ -89,7 +89,7 @@ async def get_loan_payments(
     loan = await loan_service.get_loan(db, loan_id)
     if not loan:
         raise HTTPException(status_code=404, detail="Loan not found")
-    
+
     return await loan_service.get_loan_payments(db, loan_id, limit)
 
 
@@ -101,16 +101,16 @@ async def record_payment(
 ):
     """
     Record a loan payment.
-    
+
     The payment will be split between principal and interest based on
     the current balance and interest rate. Any extra_principal goes
     directly to reducing the loan balance.
     """
     result = await loan_service.record_payment(db, loan_id, payment)
-    
+
     if not result:
         raise HTTPException(status_code=404, detail="Loan not found")
-    
+
     return result
 
 
@@ -122,8 +122,8 @@ async def update_loan(
 ):
     """Update a loan."""
     loan = await loan_service.update_loan(db, loan_id, update)
-    
+
     if not loan:
         raise HTTPException(status_code=404, detail="Loan not found")
-    
+
     return loan
