@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Setup - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="auth-layout">
+    <div class="card auth-card">
+        <div class="auth-header">
+            <div class="auth-logo"><i data-feather="dollar-sign"></i></div>
+            <h1 class="auth-title">Transaction Tracker</h1>
+            <p class="auth-subtitle">Create your account to get started</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <form id="setup-form">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter a username" required minlength="3" maxlength="50" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter a password" required minlength="0" autocomplete="new-password">
+                <p class="form-hint">Must be at least 8 characters</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" class="form-input" placeholder="Confirm your password" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="submit-btn">
+                Create Account
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('setup-form');
+    const alertContainer = document.getElementById('alert-container');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function showAlert(message, type = 'danger') {
+        alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            showAlert('Passwords do not match.');
+            return;
+        }
+
+        // Disable button and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Creating...';
+
+        try {
+            const response = await api.post('/auth/setup', { username, password });
+
+            if (response.ok) {
+                showAlert('Account created! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            } else {
+                const data = await response.json();
+                showAlert(data.detail || 'Failed to create account');
+            }
+        } catch (error) {
+            showAlert('An error occurred. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Create Account';
+        }
+    });
+</script>
+{% endblock %}

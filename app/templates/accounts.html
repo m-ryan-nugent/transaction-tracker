@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Accounts - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <header class="header">
+        <div class="container header-content">
+            <a href="/dashboard" class="header-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/accounts" class="nav-link active">Accounts</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/subscriptions" class="nav-link">Subscriptions</a>
+                <a href="/loans" class="nav-link">Loans</a>
+                <a href="/reports" class="nav-link">Reports</a>
+            </nav>
+            
+            <div class="header-actions">
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Accounts</h1>
+                <div class="page-actions">
+                    <button id="add-account-btn" class="btn btn-primary">
+                        <i data-feather="plus" class="icon"></i> Add Account
+                    </button>
+                </div>
+            </div>
+            
+            <div id="accounts-container">
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-feather="home" class="icon"></i> Bank Accounts</h3>
+                    </div>
+                    <div id="bank-accounts-list" class="accounts-list">
+                        <div class="empty-state">
+                            <p class="text-muted">No bank accounts yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-feather="credit-card" class="icon"></i> Credit Cards</h3>
+                    </div>
+                    <div id="credit-card-accounts-list" class="accounts-list">
+                        <div class="empty-state">
+                            <p class="text-muted">No credit cards yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-feather="file-text" class="icon"></i> Loans</h3>
+                    </div>
+                    <div id="loan-accounts-list" class="accounts-list">
+                        <div class="empty-state">
+                            <p class="text-muted">No loans yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-feather="trending-up" class="icon"></i> Investments</h3>
+                    </div>
+                    <div id="investment-accounts-list" class="accounts-list">
+                        <div class="empty-state">
+                            <p class="text-muted">No investments yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="account-modal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Add Account</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <form id="account-form">
+            <div class="modal-body">
+                <div class="form-group" id="account-type-group">
+                    <label class="form-label">Account Type</label>
+                    <select id="account-type" class="form-select" required>
+                        <option value="">Select type...</option>
+                        <option value="bank">Bank Account</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="loan">Loan</option>
+                        <option value="investment">Investment</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="account-name">Account Name</label>
+                    <input type="text" id="account-name" class="form-input" placeholder="e.g., Chase Checking" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="account-institution">Institution (optional)</label>
+                    <input type="text" id="account-institution" class="form-input" placeholder="e.g., Chase Bank">
+                </div>
+                
+                <div id="bank-fields" class="type-fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="bank-balance">Current Balance</label>
+                        <input type="number" id="bank-balance" class="form-input" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div id="credit-card-fields" class="type-fields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="cc-limit">Credit Limit</label>
+                            <input type="number" id="cc-limit" class="form-input" step="0.01" min="0" placeholder="5000.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="cc-balance">Current Balance</label>
+                            <input type="number" id="cc-balance" class="form-input" step="0.01" min="0" placeholder="0.00">
+                            <p class="form-hint">Amount currently owed</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cc-apr">APR % (optional)</label>
+                        <input type="number" id="cc-apr" class="form-input" step="0.01" min="0" max="100" placeholder="24.99">
+                    </div>
+                </div>
+                
+                <div id="loan-fields" class="type-fields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="loan-original">Original Amount</label>
+                            <input type="number" id="loan-original" class="form-input" step="0.01" min="0" placeholder="25000.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="loan-balance">Current Balance</label>
+                            <input type="number" id="loan-balance" class="form-input" step="0.01" min="0" placeholder="20000.00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="loan-rate">Interest Rate %</label>
+                            <input type="number" id="loan-rate" class="form-input" step="0.01" min="0" max="100" placeholder="6.5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="loan-term">Term (months)</label>
+                            <input type="number" id="loan-term" class="form-input" min="1" placeholder="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="loan-start">Start Date</label>
+                        <input type="date" id="loan-start" class="form-input">
+                    </div>
+                </div>
+                
+                <div id="investment-fields" class="type-fields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="invest-balance">Current Value</label>
+                            <input type="number" id="invest-balance" class="form-input" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="invest-initial">Initial Investment (optional)</label>
+                            <input type="number" id="invest-initial" class="form-input" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="account-notes">Notes (optional)</label>
+                    <textarea id="account-notes" class="form-input" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="modal-submit">Save Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Account</h3>
+            <button class="modal-close" id="delete-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="delete-account-name"></strong>?</p>
+            <p class="text-muted" style="margin-top: var(--spacing-sm);">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="delete-cancel">Cancel</button>
+            <button type="button" class="btn btn-danger" id="delete-confirm">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/accounts.js"></script>
+{% endblock %}

@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <header class="header">
+        <div class="container header-content">
+            <a href="/dashboard" class="header-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </a>
+
+            <nav class="header-nav">
+                <a href="/dashboard" class="nav-link active">Dashboard</a>
+                <a href="/accounts" class="nav-link">Accounts</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/subscriptions" class="nav-link">Subscriptions</a>
+                <a href="/loans" class="nav-link">Loans</a>
+                <a href="/reports" class="nav-link">Reports</a>
+            </nav>
+
+            <div class="header-actions">
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+            </div>
+
+            <div class="grid grid-cols-4" id="summary-cards">
+                <div class="card">
+                    <div class="text-muted" style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">Net Worth</div>
+                    <div class="currency" id="net-worth" style="font-size: var(--font-size-2xl); font-weight: 600;">$0.00</div>
+                </div>
+                <div class="card">
+                    <div class="text-muted" style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">Total Assets</div>
+                    <div class="currency positive" id="total-assets" style="font-size: var(--font-size-2xl); font-weight: 600;">$0.00</div>
+                </div>
+                <div class="card">
+                    <div class="text-muted" style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">Total Liabilities</div>
+                    <div class="currency negative" id="total-liabilities" style="font-size: var(--font-size-2xl); font-weight: 600;">$0.00</div>
+                </div>
+                <div class="card">
+                    <div class="text-muted" style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">Accounts</div>
+                    <div id="total-accounts" style="font-size: var(--font-size-2xl); font-weight: 600;">0</div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-xl);">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Accounts Overview</h3>
+                        <a href="/accounts" class="btn btn-sm btn-secondary">Manage Accounts</a>
+                    </div>
+
+                    <div id="accounts-overview">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-feather="home" style="width: 48px; height: 48px;"></i></div>
+                            <div class="empty-state-title">No accounts yet</div>
+                            <div class="empty-state-text">Add your first account to start tracking your finances.</div>
+                            <a href="/accounts" class="btn btn-primary">Add Account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-xl);">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Transactions</h3>
+                        <a href="/transactions" class="btn btn-sm btn-secondary">View All</a>
+                    </div>
+
+                    <div id="recent-transactions">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-feather="inbox" style="width: 48px; height: 48px;"></i></div>
+                            <div class="empty-state-title">No transactions yet</div>
+                            <div class="empty-state-text">Add your first transaction to start tracking.</div>
+                            <a href="/transactions" class="btn btn-primary">Add Transactions</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-xl);">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Upcoming Renewals</h3>
+                        <a href="/subscriptions" class="btn btn-sm btn-secondary">Manage Subscriptions</a>
+                    </div>
+
+                    <div id="upcoming-subscriptions">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-feather="repeat" style="width: 48px; height: 48px;"></i></div>
+                            <div class="empty-state-title">No subscriptions yet</div>
+                            <div class="empty-state-text">Track your recurring payments.</div>
+                            <a href="/subscriptions" class="btn btn-primary">Add Subscription</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-xl);">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Loans Overview</h3>
+                        <a href="/loans" class="btn btn-sm btn-secondary">Manage Loans</a>
+                    </div>
+
+                    <div id="loans-summary">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-feather="file-text" style="width: 48px; height: 48px;"></i></div>
+                            <div class="empty-state-title">No loans yet</div>
+                            <div class="empty-state-text">Track your loans and amortization.</div>
+                            <a href="/loans" class="btn btn-primary">Add Loan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .recent-tx-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .recent-tx-row:last-child {
+        border-bottom: none;
+    }
+    
+    .recent-tx-row:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .recent-tx-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        min-width: 0;
+    }
+    
+    .recent-tx-date {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        min-width: 70px;
+    }
+    
+    .recent-tx-details {
+        min-width: 0;
+    }
+    
+    .recent-tx-payee {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .recent-tx-category {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    
+    .recent-tx-amount {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    
+    /* Upcoming Subscriptions */
+    .upcoming-sub-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .upcoming-sub-row:last-child {
+        border-bottom: none;
+    }
+    
+    .upcoming-sub-row:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .upcoming-sub-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .upcoming-sub-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        background: rgba(97, 175, 239, 0.15);
+        color: var(--accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .upcoming-sub-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .upcoming-sub-name {
+        font-weight: 500;
+    }
+    
+    .upcoming-sub-date {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    
+    .upcoming-sub-amount {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        text-align: right;
+    }
+    
+    .renewal-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        font-weight: 500;
+        margin-left: var(--spacing-sm);
+    }
+    
+    .renewal-soon {
+        background: rgba(229, 192, 123, 0.15);
+        color: var(--accent-yellow);
+    }
+    
+    .renewal-today {
+        background: rgba(224, 108, 117, 0.15);
+        color: var(--accent-red);
+    }
+    
+    .renewal-overdue {
+        background: var(--accent-red);
+        color: white;
+    }
+    
+    /* Loans Summary */
+    .loan-summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .loan-summary-row:last-child {
+        border-bottom: none;
+    }
+    
+    .loan-summary-row:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .loan-summary-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .loan-summary-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .loan-summary-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .loan-summary-icon-mortgage { background: rgba(97, 175, 239, 0.15); color: var(--accent-blue); }
+    .loan-summary-icon-auto { background: rgba(198, 120, 221, 0.15); color: var(--accent-purple); }
+    .loan-summary-icon-personal { background: rgba(152, 195, 121, 0.15); color: var(--accent-green); }
+    .loan-summary-icon-student { background: rgba(229, 192, 123, 0.15); color: var(--accent-yellow); }
+    .loan-summary-icon-other { background: var(--bg-tertiary); color: var(--text-secondary); }
+    
+    .loan-summary-name {
+        font-weight: 500;
+    }
+    
+    .loan-summary-meta {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    
+    .loan-summary-balance {
+        text-align: right;
+    }
+    
+    .loan-summary-amount {
+        font-family: var(--font-mono);
+        font-weight: 500;
+    }
+    
+    .loan-summary-progress {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const [summaryResponse, transactionsResponse, subscriptionsResponse, loansResponse] = await Promise.all([
+                api.get('/accounts/summary'),
+                api.get('/transactions/recent?limit=10'),
+                api.get('/subscriptions/upcoming?days=30&limit=5'),
+                api.get('/loans?is_active=true'),
+            ]);
+
+            if (!summaryResponse.ok || !transactionsResponse.ok) {
+                if (summaryResponse.status === 401 || transactionsResponse.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error('Failed to load data');
+            }
+            
+            const summaryData = await summaryResponse.json();
+            const transactions = await transactionsResponse.json();
+            const upcomingSubscriptions = subscriptionsResponse.ok ? await subscriptionsResponse.json() : [];
+            const loansData = loansResponse.ok ? await loansResponse.json() : { loans: [] };
+            
+            updateDashboard(summaryData);
+            updateRecentTransactions(transactions);
+            updateUpcomingSubscriptions(upcomingSubscriptions);
+            updateLoansSummary(loansData.loans);
+
+            feather.replace();
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        }
+    });
+
+    function updateDashboard(data) {
+        document.getElementById('net-worth').textContent = formatCurrency(data.net_worth);
+        document.getElementById('net-worth').className = `currency ${data.net_worth >= 0 ? 'positive' : 'negative'}`;
+        document.getElementById('total-assets').textContent = formatCurrency(data.total_assets);
+        document.getElementById('total-liabilities').textContent = formatCurrency(data.total_liabilities);
+
+        let totalAccounts = 0;
+        for (const type in data.accounts_by_type) {
+            totalAccounts += data.accounts_by_type[type].length;
+        }
+        document.getElementById('total-accounts').textContent = totalAccounts;
+
+        const overviewContainer = document.getElementById('accounts-overview');
+        
+        if (totalAccounts === 0) {
+            return; // Keep empty state
+        }
+        
+        let html = '<div class="grid grid-cols-2">';
+        
+        const typeIcons = {
+            bank: '<i data-feather="home" class="icon"></i>',
+            credit_card: '<i data-feather="credit-card" class="icon"></i>',
+            loan: '<i data-feather="file-text" class="icon"></i>',
+            investment: '<i data-feather="trending-up" class="icon"></i>'
+        };
+        
+        const typeLabels = {
+            bank: 'Bank Accounts',
+            credit_card: 'Credit Cards',
+            loan: 'Loans',
+            investment: 'Investments'
+        };
+
+        for (const [type, accounts] of Object.entries(data.accounts_by_type)) {
+            if (accounts.length === 0) continue;
+            
+            html += `
+                <div style="margin-bottom: var(--spacing-md);">
+                    <h4 style="margin-bottom: var(--spacing-sm); color: var(--text-secondary); display: flex; align-items: center; gap: var(--spacing-xs);">
+                        ${typeIcons[type]} ${typeLabels[type]}
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+            `;
+            
+            for (const account of accounts) {
+                const balanceClass = type === 'credit_card' || type === 'loan' 
+                    ? 'negative' 
+                    : 'positive';
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                        <span>${account.name}</span>
+                        <span class="currency ${balanceClass}">${formatCurrency(account.current_balance)}</span>
+                    </div>
+                `;
+            }
+            
+            html += '</div></div>';
+        }
+
+        html += '</div>';
+        overviewContainer.innerHTML = html;
+    }
+
+    function updateRecentTransactions(transactions) {
+        const container = document.getElementById('recent-transactions');
+        
+        if (transactions.length === 0) {
+            return; // Keep empty state
+        }
+        
+        let html = '';
+        
+        for (const tx of transactions) {
+            const isExpense = tx.amount < 0;
+            const amountClass = isExpense ? 'negative' : 'positive';
+            const amountPrefix = isExpense ? '' : '+';
+            const payeeOrDesc = tx.payee || tx.description || 'No description';
+            
+            html += `
+                <div class="recent-tx-row">
+                    <div class="recent-tx-info">
+                        <span class="recent-tx-date">${formatDateShort(tx.date)}</span>
+                        <div class="recent-tx-details">
+                            <div class="recent-tx-payee">${escapeHtml(payeeOrDesc)}</div>
+                            <div class="recent-tx-category">${tx.category_name || tx.account_name || ''}</div>
+                        </div>
+                    </div>
+                    <span class="recent-tx-amount currency ${amountClass}">${amountPrefix}${formatCurrency(Math.abs(tx.amount))}</span>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    function updateUpcomingSubscriptions(subscriptions) {
+        const container = document.getElementById('upcoming-subscriptions');
+        
+        if (subscriptions.length === 0) {
+            return; // Keep empty state
+        }
+        
+        let html = '';
+        
+        for (const sub of subscriptions) {
+            const renewalBadge = getRenewalBadge(sub.days_until_renewal);
+            
+            html += `
+                <div class="upcoming-sub-row">
+                    <div class="upcoming-sub-info">
+                        <div class="upcoming-sub-icon">
+                            <i data-feather="repeat"></i>
+                        </div>
+                        <div>
+                            <div class="upcoming-sub-name">
+                                ${escapeHtml(sub.name)}
+                                ${renewalBadge}
+                            </div>
+                            <div class="upcoming-sub-date">${formatDateShort(sub.next_billing_date)}</div>
+                        </div>
+                    </div>
+                    <span class="upcoming-sub-amount currency">${formatCurrency(sub.amount)}</span>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    function getRenewalBadge(daysUntil) {
+        if (daysUntil < 0) {
+            return `<span class="renewal-badge renewal-overdue">Overdue</span>`;
+        } else if (daysUntil === 0) {
+            return `<span class="renewal-badge renewal-today">Due Today</span>`;
+        } else if (daysUntil <= 7) {
+            return `<span class="renewal-badge renewal-soon">In ${daysUntil} day${daysUntil === 1 ? '' : 's'}</span>`;
+        }
+        return '';
+    }
+
+    function updateLoansSummary(loans) {
+        const container = document.getElementById('loans-summary');
+        
+        if (loans.length === 0) {
+            return; // Keep empty state
+        }
+        
+        const loanIcons = {
+            mortgage: 'home',
+            auto: 'truck',
+            personal: 'user',
+            student: 'book',
+            other: 'file-text'
+        };
+        
+        let html = '';
+        
+        for (const loan of loans.slice(0, 5)) {
+            const icon = loanIcons[loan.loan_type] || 'file-text';
+            
+            html += `
+                <div class="loan-summary-row">
+                    <div class="loan-summary-info">
+                        <div class="loan-summary-icon loan-summary-icon-${loan.loan_type}">
+                            <i data-feather="${icon}"></i>
+                        </div>
+                        <div>
+                            <div class="loan-summary-name">${escapeHtml(loan.name)}</div>
+                            <div class="loan-summary-meta">${loan.loan_type_display} • ${loan.interest_rate}% APR</div>
+                        </div>
+                    </div>
+                    <div class="loan-summary-balance">
+                        <div class="loan-summary-amount">${formatCurrency(loan.current_balance)}</div>
+                        <div class="loan-summary-progress">${loan.progress_percent}% paid</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    function formatDateShort(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await api.post('/auth/logout');
+        window.location.href = '/login';
+    });
+</script>
+{% endblock %}
