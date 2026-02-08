@@ -145,3 +145,72 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+/**
+ * Check if the user has an active session.
+ * Auth is handled via HTTP-only cookies, so we can't inspect the token directly.
+ * Returns true to let init proceed; API calls will handle 401 redirects.
+ */
+function getToken() {
+    return true;
+}
+
+/**
+ * Make an authenticated API request and return parsed JSON.
+ * Redirects to /login on 401 responses.
+ */
+async function apiRequest(url, options = {}) {
+    const defaultOptions = {
+        credentials: 'same-origin',
+        headers: {},
+    };
+
+    if (options.body) {
+        defaultOptions.headers['Content-Type'] = 'application/json';
+    }
+
+    const mergedOptions = {
+        ...defaultOptions,
+        ...options,
+        headers: {
+            ...defaultOptions.headers,
+            ...options.headers,
+        },
+    };
+
+    const response = await fetch(url, mergedOptions);
+
+    if (response.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Unauthorized');
+    }
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }));
+        throw new Error(error.detail || 'Request failed');
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+}
+
+/**
+ * Verify the session is valid by making a lightweight API call.
+ */
+function checkAuth() {
+    api.get('/accounts/summary').then(response => {
+        if (!response.ok) {
+            window.location.href = '/login';
+        }
+    }).catch(() => {
+        window.location.href = '/login';
+    });
+}
+
+/**
+ * Log out by clearing the server session and redirecting to login.
+ */
+function logout() {
+    api.post('/auth/logout').catch(() => {});
+    window.location.href = '/login';
+}
