@@ -1,0 +1,616 @@
+{% extends "base.html" %}
+
+{% block title %}Loans - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <header class="header">
+        <div class="container header-content">
+            <a href="/dashboard" class="header-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/accounts" class="nav-link">Accounts</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/subscriptions" class="nav-link">Subscriptions</a>
+                <a href="/loans" class="nav-link active">Loans</a>
+                <a href="/reports" class="nav-link">Reports</a>
+            </nav>
+            
+            <div class="header-actions">
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Loans</h1>
+                <div class="page-actions">
+                    <button id="add-loan-btn" class="btn btn-primary">
+                        <i data-feather="plus" class="icon"></i> Add Loan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-red">
+                        <i data-feather="file-text"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Active Loans</div>
+                        <div class="summary-value" id="active-count">0</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-yellow">
+                        <i data-feather="trending-down"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Total Balance</div>
+                        <div class="summary-value" id="total-balance">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-blue">
+                        <i data-feather="calendar"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Monthly Payments</div>
+                        <div class="summary-value" id="monthly-payments">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-bar">
+                <button class="tab-btn active" data-filter="all">All</button>
+                <button class="tab-btn" data-filter="active">Active</button>
+                <button class="tab-btn" data-filter="paid">Paid Off</button>
+            </div>
+            
+            <div class="card">
+                <div id="loans-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i data-feather="file-text" style="width: 48px; height: 48px;"></i></div>
+                        <div class="empty-state-title">No loans yet</div>
+                        <div class="empty-state-text">Track your loans and see amortization schedules.</div>
+                        <button class="btn btn-primary" onclick="openLoanModal()">Add Loan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="loan-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 550px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Add Loan</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <form id="loan-form">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="loan-name">Loan Name</label>
+                    <input type="text" id="loan-name" class="form-input" placeholder="e.g., Car Loan, Mortgage" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="loan-type">Type</label>
+                        <select id="loan-type" class="form-select" required>
+                            <option value="personal">Personal Loan</option>
+                            <option value="auto">Auto Loan</option>
+                            <option value="mortgage">Mortgage</option>
+                            <option value="student">Student Loan</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="loan-principal">Principal Amount</label>
+                        <input type="number" id="loan-principal" class="form-input" step="0.01" min="0.01" placeholder="0.00" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="loan-rate">Interest Rate (%)</label>
+                        <input type="number" id="loan-rate" class="form-input" step="0.01" min="0" max="100" placeholder="5.0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="loan-term">Term (months)</label>
+                        <input type="number" id="loan-term" class="form-input" min="1" max="600" placeholder="60" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="loan-start-date">Start Date</label>
+                        <input type="date" id="loan-start-date" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="loan-payment">Monthly Payment (optional)</label>
+                        <input type="number" id="loan-payment" class="form-input" step="0.01" min="0" placeholder="Auto-calculated">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="loan-account">Linked Account (optional)</label>
+                    <select id="loan-account" class="form-select">
+                        <option value="">No linked account</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="loan-notes">Notes (optional)</label>
+                    <textarea id="loan-notes" class="form-input" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="modal-submit">Save Loan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="payment-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Record Payment</h3>
+            <button class="modal-close" id="payment-modal-close">&times;</button>
+        </div>
+        <form id="payment-form">
+            <div class="modal-body">
+                <div class="payment-loan-info">
+                    <div class="payment-loan-name" id="payment-loan-name">Loan Name</div>
+                    <div class="payment-loan-balance">Current Balance: <span id="payment-current-balance">$0.00</span></div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="payment-amount">Payment Amount</label>
+                        <input type="number" id="payment-amount" class="form-input" step="0.01" min="0.01" placeholder="0.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="payment-date">Payment Date</label>
+                        <input type="date" id="payment-date" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="payment-extra">Extra Principal (optional)</label>
+                    <input type="number" id="payment-extra" class="form-input" step="0.01" min="0" placeholder="0.00">
+                    <small class="form-hint">Additional amount to apply directly to principal</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="payment-notes">Notes (optional)</label>
+                    <input type="text" id="payment-notes" class="form-input" placeholder="Payment notes...">
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="payment-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary">Record Payment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="amortization-modal" class="modal-overlay">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 class="modal-title" id="amort-title">Amortization Schedule</h3>
+            <button class="modal-close" id="amort-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="amort-summary">
+                <div class="amort-summary-item">
+                    <span class="amort-label">Principal:</span>
+                    <span class="amort-value" id="amort-principal">$0.00</span>
+                </div>
+                <div class="amort-summary-item">
+                    <span class="amort-label">Interest Rate:</span>
+                    <span class="amort-value" id="amort-rate">0%</span>
+                </div>
+                <div class="amort-summary-item">
+                    <span class="amort-label">Term:</span>
+                    <span class="amort-value" id="amort-term">0 months</span>
+                </div>
+                <div class="amort-summary-item">
+                    <span class="amort-label">Monthly Payment:</span>
+                    <span class="amort-value" id="amort-payment">$0.00</span>
+                </div>
+                <div class="amort-summary-item highlight">
+                    <span class="amort-label">Total Interest:</span>
+                    <span class="amort-value" id="amort-total-interest">$0.00</span>
+                </div>
+                <div class="amort-summary-item highlight">
+                    <span class="amort-label">Total Cost:</span>
+                    <span class="amort-value" id="amort-total-cost">$0.00</span>
+                </div>
+            </div>
+            
+            <div class="amort-table-container">
+                <table class="amort-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Payment</th>
+                            <th>Principal</th>
+                            <th>Interest</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="amort-schedule">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="amort-close">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Loan</h3>
+            <button class="modal-close" id="delete-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this loan?</p>
+            <p class="text-muted" style="margin-top: var(--spacing-sm);">This will also delete all payment history for this loan.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="delete-cancel">Cancel</button>
+            <button type="button" class="btn btn-danger" id="delete-confirm">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .summary-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .summary-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .summary-icon-red {
+        background: rgba(224, 108, 117, 0.15);
+        color: var(--accent-red);
+    }
+    
+    .summary-icon-yellow {
+        background: rgba(229, 192, 123, 0.15);
+        color: var(--accent-yellow);
+    }
+    
+    .summary-icon-blue {
+        background: rgba(97, 175, 239, 0.15);
+        color: var(--accent-blue);
+    }
+    
+    .summary-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .summary-value {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .tab-bar {
+        display: flex;
+        gap: var(--spacing-xs);
+        margin-bottom: var(--spacing-md);
+        background: var(--bg-secondary);
+        padding: var(--spacing-xs);
+        border-radius: var(--radius-md);
+        width: fit-content;
+    }
+    
+    .tab-btn {
+        padding: var(--spacing-xs) var(--spacing-md);
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: var(--font-size-sm);
+        transition: all 0.2s ease;
+    }
+    
+    .tab-btn:hover {
+        color: var(--text-primary);
+    }
+    
+    .tab-btn.active {
+        background: var(--accent-blue);
+        color: white;
+    }
+    
+    .loan-item {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.15s ease;
+    }
+    
+    .loan-item:last-child {
+        border-bottom: none;
+    }
+    
+    .loan-item:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .loan-item.paid-off {
+        opacity: 0.7;
+    }
+    
+    .loan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .loan-main {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .loan-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .loan-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .loan-icon-mortgage { background: rgba(97, 175, 239, 0.15); color: var(--accent-blue); }
+    .loan-icon-auto { background: rgba(198, 120, 221, 0.15); color: var(--accent-purple); }
+    .loan-icon-personal { background: rgba(152, 195, 121, 0.15); color: var(--accent-green); }
+    .loan-icon-student { background: rgba(229, 192, 123, 0.15); color: var(--accent-yellow); }
+    .loan-icon-other { background: var(--bg-tertiary); color: var(--text-secondary); }
+    
+    .loan-info h4 {
+        margin: 0 0 var(--spacing-xs) 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .loan-meta {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+    
+    .loan-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .loan-meta svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .loan-actions {
+        display: flex;
+        gap: var(--spacing-xs);
+    }
+    
+    .loan-progress {
+        margin-top: var(--spacing-sm);
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--accent-green);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    .badge-paid {
+        background: rgba(152, 195, 121, 0.15);
+        color: var(--accent-green);
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    /* Payment Modal */
+    .payment-loan-info {
+        background: var(--bg-tertiary);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .payment-loan-name {
+        font-weight: 600;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .payment-loan-balance {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    .form-hint {
+        display: block;
+        margin-top: var(--spacing-xs);
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    /* Amortization Modal */
+    .modal-lg {
+        max-width: 900px;
+        max-height: 90vh;
+    }
+    
+    .amort-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--spacing-md);
+        background: var(--bg-tertiary);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .amort-summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    
+    .amort-summary-item.highlight {
+        background: var(--bg-secondary);
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-sm);
+    }
+    
+    .amort-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    .amort-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .amort-table-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .amort-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--font-size-sm);
+    }
+    
+    .amort-table th,
+    .amort-table td {
+        padding: var(--spacing-sm);
+        text-align: right;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .amort-table th {
+        background: var(--bg-secondary);
+        position: sticky;
+        top: 0;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+    
+    .amort-table th:first-child,
+    .amort-table td:first-child {
+        text-align: center;
+        width: 50px;
+    }
+    
+    .amort-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    @media (max-width: 768px) {
+        .loan-header {
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        
+        .loan-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .amort-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/loans.js"></script>
+{% endblock %}

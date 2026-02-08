@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <header class="header">
+        <div class="container header-content">
+            <a href="/dashboard" class="header-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/accounts" class="nav-link">Accounts</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/subscriptions" class="nav-link">Subscriptions</a>
+                <a href="/loans" class="nav-link">Loans</a>
+                <a href="/reports" class="nav-link active">Reports</a>
+            </nav>
+            
+            <div class="header-actions">
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Reports & Analytics</h1>
+            </div>
+            
+            <div class="card" style="margin-bottom: var(--spacing-lg);">
+                <div class="date-range-selector">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">From</label>
+                        <input type="date" id="start-date" class="form-input">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">To</label>
+                        <input type="date" id="end-date" class="form-input">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Quick Select</label>
+                        <select id="quick-range" class="form-select">
+                            <option value="this-month">This Month</option>
+                            <option value="last-month">Last Month</option>
+                            <option value="last-3-months">Last 3 Months</option>
+                            <option value="last-6-months">Last 6 Months</option>
+                            <option value="this-year">This Year</option>
+                            <option value="last-year">Last Year</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0; align-self: flex-end;">
+                        <button id="apply-range" class="btn btn-primary">Apply</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-green">
+                        <i data-feather="trending-up"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Total Income</div>
+                        <div class="summary-value" id="total-income">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-red">
+                        <i data-feather="trending-down"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Total Spending</div>
+                        <div class="summary-value" id="total-spending">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-blue">
+                        <i data-feather="activity"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Net</div>
+                        <div class="summary-value" id="net-amount">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-row">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Spending by Category</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    <div id="category-legend" class="chart-legend"></div>
+                </div>
+                
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Monthly Trends</h3>
+                    </div>
+                    <div class="chart-container chart-container-wide">
+                        <canvas id="trends-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: var(--spacing-lg);">
+                <div class="card-header">
+                    <h3 class="card-title">Category Breakdown</h3>
+                </div>
+                <div id="category-table">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-right">Transactions</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">% of Spending</th>
+                            </tr>
+                        </thead>
+                        <tbody id="category-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: var(--spacing-lg);">
+                <div class="card-header">
+                    <h3 class="card-title">Export Data</h3>
+                </div>
+                <div class="export-section">
+                    <div class="export-item">
+                        <div class="export-info">
+                            <i data-feather="file-text"></i>
+                            <div>
+                                <strong>Transactions</strong>
+                                <p>Export all transactions for the selected date range</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportTransactions()">
+                            <i data-feather="download" class="icon"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <div class="export-item">
+                        <div class="export-info">
+                            <i data-feather="credit-card"></i>
+                            <div>
+                                <strong>Accounts</strong>
+                                <p>Export all account balances and information</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportAccounts()">
+                            <i data-feather="download" class="icon"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <div class="export-item">
+                        <div class="export-info">
+                            <i data-feather="repeat"></i>
+                            <div>
+                                <strong>Subscriptions</strong>
+                                <p>Export all subscription details</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportSubscriptions()">
+                            <i data-feather="download" class="icon"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <div class="export-item">
+                        <div class="export-info">
+                            <i data-feather="file-text"></i>
+                            <div>
+                                <strong>Loans</strong>
+                                <p>Export all loan details and balances</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportLoans()">
+                            <i data-feather="download" class="icon"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .date-range-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        align-items: flex-end;
+        padding: var(--spacing-md);
+    }
+    
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .summary-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .summary-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .summary-icon-green {
+        background: rgba(152, 195, 121, 0.15);
+        color: var(--accent-green);
+    }
+    
+    .summary-icon-red {
+        background: rgba(224, 108, 117, 0.15);
+        color: var(--accent-red);
+    }
+    
+    .summary-icon-blue {
+        background: rgba(97, 175, 239, 0.15);
+        color: var(--accent-blue);
+    }
+    
+    .summary-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .summary-value {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .chart-card {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chart-container {
+        flex: 1;
+        min-height: 300px;
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chart-container-wide {
+        min-height: 250px;
+    }
+    
+    .chart-legend {
+        padding: var(--spacing-md);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .data-table th {
+        font-weight: 500;
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+    }
+    
+    .data-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .text-right {
+        text-align: right !important;
+    }
+    
+    .export-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+    
+    .export-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md);
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-md);
+    }
+    
+    .export-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .export-info > svg {
+        width: 24px;
+        height: 24px;
+        color: var(--text-muted);
+    }
+    
+    .export-info p {
+        margin: 0;
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    .progress-bar-small {
+        height: 6px;
+        background: var(--bg-tertiary);
+        border-radius: 3px;
+        overflow: hidden;
+        width: 100px;
+    }
+    
+    .progress-bar-small .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+    
+    @media (max-width: 1024px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .date-range-selector {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .export-item {
+            flex-direction: column;
+            gap: var(--spacing-md);
+            text-align: center;
+        }
+        
+        .export-info {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="/static/js/reports.js"></script>
+{% endblock %}

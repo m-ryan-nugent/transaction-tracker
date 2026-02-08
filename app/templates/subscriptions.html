@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}Subscriptions - Transaction Tracker{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <header class="header">
+        <div class="container header-content">
+            <a href="/dashboard" class="header-brand">
+                <span class="header-brand-icon"><i data-feather="dollar-sign"></i></span>
+                <span>Transaction Tracker</span>
+            </a>
+
+            <nav class="header-nav">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/accounts" class="nav-link">Accounts</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/subscriptions" class="nav-link active">Subscriptions</a>
+                <a href="/loans" class="nav-link">Loans</a>
+                <a href="/reports" class="nav-link">Reports</a>
+            </nav>
+
+            <div class="header-actions">
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Subscriptions</h1>
+                <div class="page-actions">
+                    <button id="add-subscription-btn" class="btn btn-primary">
+                        <i data-feather="plus" class="icon"></i> Add Subscription
+                    </button>
+                </div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-blue">
+                        <i data-feather="refresh-cw"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Active Subscriptions</div>
+                        <div class="summary-value" id="active-count">0</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-purple">
+                        <i data-feather="calendar"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Monthly Cost</div>
+                        <div class="summary-value" id="monthly-cost">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon summary-icon-cyan">
+                        <i data-feather="trending-up"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-label">Yearly Cost</div>
+                        <div class="summary-value" id="yearly-cost">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" data-filter="all">All</button>
+                <button class="tab-btn" data-filter="active">Active</button>
+                <button class="tab-btn" data-filter="inactive">Inactive</button>
+            </div>
+
+            <div class="card">
+                <div id="subscriptions-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i data-feather="repeat" style="width: 48px; height: 48px;"></i></div>
+                        <div class="empty-state-title">No subscriptions yet</div>
+                        <div class="empty-state-text">Track your recurring payments and subscriptions.</div>
+                        <button class="btn btn-primary" onclick="openSubscriptionModal()">Add Subscription</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="subscription-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Add Subscription</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <form id="subscription-form">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="sub-name">Name</label>
+                    <input type="text" id="sub-name" class="form-input" placeholder="e.g., Netflix, Spotify" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="sub-amount">Amount</label>
+                        <input type="number" id="sub-amount" class="form-input" step="0.01" min="0.01" placeholder="0.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="sub-billing-cycle">Billing Cycle</label>
+                        <select id="sub-billing-cycle" class="form-select" required>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Bi-Weekly</option>
+                            <option value="quarterly">Quarterly</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sub-next-date">Next Billing Date</label>
+                    <input type="date" id="sub-next-date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sub-account">Payment Account (optional)</label>
+                    <select id="sub-account" class="form-select">
+                        <option value="">Select account...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sub-category">Category (optional)</label>
+                    <select id="sub-category" class="form-select">
+                        <option value="">Select category...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sub-notes">Notes (optional)</label>
+                    <textarea id="sub-notes" class="form-input" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+                
+                <div class="form-group" id="is-active-group" style="display: none;">
+                    <label class="form-checkbox">
+                        <input type="checkbox" id="sub-is-active" checked>
+                        <span>Active</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="modal-submit">Save Subscription</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Subscription</h3>
+            <button class="modal-close" id="delete-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this subscription?</p>
+            <p class="text-muted" style="margin-top: var(--spacing-sm);">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="delete-cancel">Cancel</button>
+            <button type="button" class="btn btn-danger" id="delete-confirm">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .summary-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .summary-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .summary-icon-blue {
+        background: rgba(97, 175, 239, 0.15);
+        color: var(--accent-blue);
+    }
+
+    .summary-icon-purple {
+        background: rgba(198, 120, 221, 0.15);
+        color: var(--accent-purple);
+    }
+
+    .summary-icon-cyan {
+        background: rgba(86, 182, 194, 0.15);
+        color: var(--accent-cyan);
+    }
+
+    .summary-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .summary-value {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .tab-bar {
+        display: flex;
+        gap: var(--spacing-xs);
+        margin-bottom: var(--spacing-md);
+        background: var(--bg-secondary);
+        padding: var(--spacing-xs);
+        border-radius: var(--radius-md);
+        width: fit-content;
+    }
+
+    .tab-btn {
+        padding: var(--spacing-xs) var(--spacing-md);
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: var(--font-size-sm);
+        transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+        color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+        background: var(--accent-blue);
+        color: white;
+    }
+
+    .subscription-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.15s ease;
+    }
+
+    .subscription-item:last-child {
+        border-bottom: none;
+    }
+    
+    .subscription-item:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .subscription-item.inactive {
+        opacity: 0.6;
+    }
+    
+    .subscription-main {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .subscription-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-md);
+        background: rgba(97, 175, 239, 0.15);
+        color: var(--accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .subscription-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .subscription-icon.inactive {
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+    }
+    
+    .subscription-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .subscription-name {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-xs);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .subscription-name .badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .subscription-details {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .subscription-details span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .subscription-details svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .subscription-amount {
+        text-align: right;
+        margin-right: var(--spacing-md);
+    }
+    
+    .subscription-amount-value {
+        font-weight: 600;
+        font-size: var(--font-size-lg);
+        color: var(--text-primary);
+    }
+    
+    .subscription-amount-cycle {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+    }
+    
+    .subscription-actions {
+        display: flex;
+        gap: var(--spacing-xs);
+    }
+    
+    .renewal-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        font-weight: 500;
+    }
+    
+    .renewal-soon {
+        background: rgba(229, 192, 123, 0.15);
+        color: var(--accent-yellow);
+    }
+    
+    .renewal-today {
+        background: rgba(224, 108, 117, 0.15);
+        color: var(--accent-red);
+    }
+    
+    .renewal-overdue {
+        background: var(--accent-red);
+        color: white;
+    }
+    
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        cursor: pointer;
+    }
+    
+    .form-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent-blue);
+    }
+    
+    @media (max-width: 768px) {
+        .subscription-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+        
+        .subscription-amount {
+            text-align: left;
+            margin-right: 0;
+        }
+        
+        .subscription-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/subscriptions.js"></script>
+{% endblock %}
